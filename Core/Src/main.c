@@ -168,12 +168,17 @@ int main(void)
 
     JOYSTICK_Process();
 
-    // Check for joystick timeout
+    // Check for joystick timeout or invalid data
     if (HAL_GetTick() - lastJoystickUpdate > JOYSTICK_TIMEOUT_MS) {
         // Gradually reduce speed when joystick times out
         target_xSpeed = 0.0f;
         target_ySpeed = 0.0f;
         target_rot = 0.0f;
+        
+        // Apply brake if no valid data for extended period
+        if (HAL_GetTick() - lastJoystickUpdate > JOYSTICK_TIMEOUT_MS * 2) {
+            applyBrake();
+        }
     }
     // Normal joystick control code
     else if (JOYSTICK_NewDataAvailable()) {
